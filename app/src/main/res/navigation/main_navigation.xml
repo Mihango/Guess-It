@@ -48,6 +48,7 @@
             app:popExitAnim="@anim/slide_out_left"
             app:popUpTo="@+id/title_destination" />
     </fragment>
+
     <fragment
         android:id="@+id/score_destination"
         android:name="com.example.android.guesstheword.screens.score.ScoreFragment"
