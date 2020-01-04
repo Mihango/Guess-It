@@ -3,6 +3,7 @@ package com.example.android.guesstheword.screens.game
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.Observer
 import com.example.android.guesstheword.getOrAwaitValue
+import com.example.android.guesstheword.mock
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.CoreMatchers.not
 import org.hamcrest.MatcherAssert.assertThat
@@ -11,7 +12,9 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import org.mockito.Mockito
+import org.mockito.ArgumentCaptor
+import org.mockito.Mockito.times
+import org.mockito.Mockito.verify
 
 @RunWith(JUnit4::class)
 class GameViewModelTest {
@@ -26,7 +29,7 @@ class GameViewModelTest {
     @Before
     fun setUp() {
         gameViewModel = GameViewModel()
-        gameViewModel.scoreLiveData.observeForever(scoreObserve)
+        gameViewModel.score.observeForever(scoreObserve)
     }
 
     @Test
@@ -38,33 +41,37 @@ class GameViewModelTest {
     @Test
     fun onCorrect_clicked_wordChangesAndScoreIncreases() {
         // current score is 0
-        val initialScore = gameViewModel.scoreLiveData.value as Int
-        val currentWord = gameViewModel.wordLiveData.value as String
+        val initialScore = gameViewModel.score.value ?: 0
+        val currentWord = gameViewModel.word.value as String
+
+        println("Test score $initialScore >>>>> ")
 
         //on correct expect increase by 1
         gameViewModel.onCorrect()
 
-//        val captor = ArgumentCaptor.forClass(Int::class.java)
-//        captor.run {
-//            // verify(scoreObserve, times(2)).onChanged(capture())
-//            assertThat(gameViewModel.scoreLiveData.value, `is`(initialScore + 1))
-//        }
-        assertThat(gameViewModel.scoreLiveData.getOrAwaitValue(), `is`(initialScore + 1))
-        assertThat(gameViewModel.wordLiveData.getOrAwaitValue(), not(currentWord)) // check word value changes
+        val captor = ArgumentCaptor.forClass(Int::class.java)
+        captor.run {
+            verify(scoreObserve, times(2)).onChanged(capture())
+            assertThat(gameViewModel.score.getOrAwaitValue(), `is`(initialScore + 1))
+            assertThat(gameViewModel.word.getOrAwaitValue(), not(currentWord)) // check word value changes
+        }
+
     }
 
     @Test
     fun onSkip_clicked_wordChangesAndScoreDecreases() {
         // current score is 0
-        val initialScore = gameViewModel.scoreLiveData.value as Int
-        val currentWord = gameViewModel.wordLiveData.value as String
+        val initialScore = gameViewModel.score.value as Int
+        val currentWord = gameViewModel.word.value as String
 
         //on correct expect increase by 1
         gameViewModel.onSkip()
 
-        assertThat(gameViewModel.scoreLiveData.getOrAwaitValue(), `is`(initialScore - 1))
-        assertThat(gameViewModel.wordLiveData.getOrAwaitValue(), not(currentWord)) // check word value changes
+        val captor = ArgumentCaptor.forClass(Int::class.java)
+        captor.run {
+            verify(scoreObserve, times(2)).onChanged(capture())
+            assertThat(gameViewModel.score.getOrAwaitValue(), `is`(initialScore - 1))
+            assertThat(gameViewModel.word.getOrAwaitValue(), not(currentWord)) // check word value changes
+        }
     }
-
-    inline fun <reified T> mock(): T = Mockito.mock(T::class.java)
 }

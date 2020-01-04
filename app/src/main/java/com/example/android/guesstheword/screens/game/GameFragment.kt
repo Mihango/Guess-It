@@ -58,17 +58,17 @@ class GameFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        gameViewModel.wordLiveData.observe(viewLifecycleOwner, Observer {
+        gameViewModel.word.observe(viewLifecycleOwner, Observer {
             binding.wordText.text = it
         })
 
-        gameViewModel.scoreLiveData.observe(viewLifecycleOwner, Observer {
+        gameViewModel.score.observe(viewLifecycleOwner, Observer {
             binding.scoreText.text = it.toString()
         })
 
         gameViewModel.gameFinished.observe(viewLifecycleOwner, Observer {
             if (it)
-                gameFinished(gameViewModel.scoreLiveData.value as Int)
+                gameFinished(gameViewModel.score.value ?: 0)
         })
     }
 
