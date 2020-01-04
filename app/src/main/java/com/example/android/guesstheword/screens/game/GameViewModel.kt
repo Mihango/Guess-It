@@ -32,6 +32,10 @@ class GameViewModel : ViewModel() {
         Timber.i("GameViewModel destroyed!")
     }
 
+
+    /**
+     * Resets the list of words and randomizes the order
+     */
     private fun resetList() {
         wordList = mutableListOf(
                 "queen",
@@ -62,7 +66,7 @@ class GameViewModel : ViewModel() {
     /**
      * Moves to the next word in the list
      */
-    fun nextWord() {
+    private fun nextWord() {
         //Select and remove a word from the list
         if (wordList.isEmpty()) {
             gameFinished.postValue(true)
@@ -71,11 +75,13 @@ class GameViewModel : ViewModel() {
         }
     }
 
-    fun increaseScore() {
+    fun onCorrect() {
         scoreLiveData.postValue(scoreLiveData.value?.plus(1))
+        nextWord()
     }
 
-    fun reduceScore() {
+    fun onSkip() {
         scoreLiveData.postValue(scoreLiveData.value?.minus(1))
+        nextWord()
     }
 }

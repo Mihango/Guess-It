@@ -22,7 +22,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.NavHostFragment.findNavController
@@ -49,11 +48,8 @@ class GameFragment : Fragment() {
                 false
         )
 
-        binding.correctButton.setOnClickListener { onCorrect() }
-        binding.skipButton.setOnClickListener { onSkip() }
-
-//        updateScoreText()
-//        updateWordText()
+        binding.correctButton.setOnClickListener { gameViewModel.onCorrect() }
+        binding.skipButton.setOnClickListener { gameViewModel.onSkip() }
 
         return binding.root
 
@@ -77,39 +73,10 @@ class GameFragment : Fragment() {
     }
 
     /**
-     * Resets the list of words and randomizes the order
-     */
-
-
-    /**
      * Called when the game is finished
      */
     private fun gameFinished(score: Int) {
         val action = GameFragmentDirections.actionGameToScore(score)
         findNavController(this).navigate(action)
     }
-
-
-    /** Methods for buttons presses **/
-
-    private fun onSkip() {
-        gameViewModel.reduceScore()
-        gameViewModel.nextWord()
-    }
-
-    private fun onCorrect() {
-        gameViewModel.increaseScore()
-        gameViewModel.nextWord()
-    }
-
-    /** Methods for updating the UI **/
-
-//    private fun updateWordText() {
-//        binding.wordText.text = gameViewModel.word
-//
-//    }
-
-//    private fun updateScoreText() {
-//        binding.scoreText.text = gameViewModel.score.toString()
-//    }
 }
