@@ -18,6 +18,7 @@
 
 buildscript {
     ext.kotlin_version = '1.3.61'
+    ext.hamcrest_version = "1.3"
     repositories {
         google()
         jcenter()
