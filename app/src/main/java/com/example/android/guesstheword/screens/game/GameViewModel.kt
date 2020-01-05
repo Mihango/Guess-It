@@ -1,11 +1,18 @@
 package com.example.android.guesstheword.screens.game
 
+import android.os.CountDownTimer
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import timber.log.Timber
 
 class GameViewModel : ViewModel() {
+
+    companion object {
+        const val COUNT_DOWN_TIME = 10000L
+        const val ONE_SECOND = 1000L
+        const val DONE = 0L
+    }
 
     // The current word
     private val _word = MutableLiveData<String>()
@@ -18,15 +25,36 @@ class GameViewModel : ViewModel() {
         get() = _score
 
     // boolean to trigger finish
-    val gameFinished = MutableLiveData<Boolean>()
+    private val _eventGameFinished = MutableLiveData<Boolean>()
+    val eventGameFinished: LiveData<Boolean>
+        get() = _eventGameFinished
+
+    private val timer: CountDownTimer
+    private val _time = MutableLiveData<Long>()
+    val time: LiveData<Long>
+        get() = _time
 
     init {
         Timber.i("GameViewModel created!")
-        gameFinished.value = false
+        _eventGameFinished.value = false
         _score.value = 0
 //        _word.value = ""
         resetList()
         nextWord()
+
+        timer = object : CountDownTimer(COUNT_DOWN_TIME, ONE_SECOND) {
+            override fun onFinish() {
+                Timber.e("Countdown timer finished")
+                _eventGameFinished.value = true
+                _time.value = DONE
+            }
+
+            override fun onTick(millisUntilFinished: Long) {
+                Timber.e("Countdown timer millisUntilFinished >>> $millisUntilFinished")
+                _time.value = millisUntilFinished / ONE_SECOND
+            }
+        }
+        timer.start()
     }
 
     // The list of words - the front of the list is the next word to guess
@@ -34,6 +62,7 @@ class GameViewModel : ViewModel() {
 
     override fun onCleared() {
         super.onCleared()
+        timer.cancel()
         Timber.i("GameViewModel destroyed!")
     }
 
@@ -74,10 +103,9 @@ class GameViewModel : ViewModel() {
     private fun nextWord() {
         //Select and remove a word from the list
         if (wordList.isEmpty()) {
-            gameFinished.postValue(true)
-        } else {
-            _word.postValue(wordList.removeAt(0))
+            resetList()
         }
+        _word.postValue(wordList.removeAt(0))
     }
 
     fun onCorrect() {
@@ -88,5 +116,9 @@ class GameViewModel : ViewModel() {
     fun onSkip() {
         _score.value = score.value?.minus(1)
         nextWord()
+    }
+
+    fun gameFinishedCompletely() {
+        _eventGameFinished.value = false
     }
 }

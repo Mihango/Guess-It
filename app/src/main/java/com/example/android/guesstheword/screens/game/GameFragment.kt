@@ -17,9 +17,11 @@
 package com.example.android.guesstheword.screens.game
 
 import android.os.Bundle
+import android.text.format.DateUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -27,6 +29,7 @@ import androidx.lifecycle.Observer
 import androidx.navigation.fragment.NavHostFragment.findNavController
 import com.example.android.guesstheword.R
 import com.example.android.guesstheword.databinding.GameFragmentBinding
+import kotlinx.android.synthetic.main.game_fragment.*
 
 /**
  * Fragment where the game is played
@@ -66,9 +69,15 @@ class GameFragment : Fragment() {
             binding.scoreText.text = it.toString()
         })
 
-        gameViewModel.gameFinished.observe(viewLifecycleOwner, Observer {
-            if (it)
+        gameViewModel.eventGameFinished.observe(viewLifecycleOwner, Observer {
+            if (it) {
                 gameFinished(gameViewModel.score.value ?: 0)
+                gameViewModel.gameFinishedCompletely()
+            }
+        })
+
+        gameViewModel.time.observe(viewLifecycleOwner, Observer { newTime ->
+            timer_text.text = DateUtils.formatElapsedTime(newTime)
         })
     }
 
@@ -76,6 +85,7 @@ class GameFragment : Fragment() {
      * Called when the game is finished
      */
     private fun gameFinished(score: Int) {
+        Toast.makeText(activity, "Game finished", Toast.LENGTH_SHORT).show()
         val action = GameFragmentDirections.actionGameToScore(score)
         findNavController(this).navigate(action)
     }
